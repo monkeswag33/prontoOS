@@ -27,7 +27,7 @@ static void map_framebuffer(void) {
     if (fbinfo.memory_size % PAGE_SIZE)
         num_pages++;
     for (uint32_t i = 0; i < num_pages; i++)
-        map_addr(fbinfo.phys_addr + i * PAGE_SIZE, FRAMEBUFFER_START + i * PAGE_SIZE, WRITE_BIT | PRESENT_BIT);
+        map_addr(fbinfo.phys_addr + i * PAGE_SIZE, FRAMEBUFFER_START + i * PAGE_SIZE, PAGE_TABLE_ENTRY);
     bitmap_rsv_area(fbinfo.phys_addr, num_pages * PAGE_SIZE);
 }
 

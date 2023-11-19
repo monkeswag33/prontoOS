@@ -27,13 +27,13 @@ time_t global_time;
 int bcd;
 
 uint8_t read_cmos_register(uint8_t port_num) {
-    outportb(0x70, port_num);
-    return inportb(0x71);
+    outb(0x70, port_num);
+    return inb(0x71);
 }
 
 void write_cmos_register(uint8_t port_num, uint8_t val) {
-    outportb(0x70, port_num);
-    outportb(0x71, val);
+    outb(0x70, port_num);
+    outb(0x71, val);
 }
 
 inline uint32_t bcd2bin(uint32_t bcd_num) {

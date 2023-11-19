@@ -48,7 +48,7 @@ uint8_t validate(char *start, size_t length) {
 // Parse RSDPv1
 void parse_rsdp(rsdp_descriptor_t *rsdp) {
     rsdt_version = 1;
-    map_addr(ALIGN_ADDR(rsdp->rsdt_address), VADDR(rsdp->rsdt_address), WRITE_BIT | PRESENT_BIT);
+    map_addr(ALIGN_ADDR(rsdp->rsdt_address), VADDR(rsdp->rsdt_address), PAGE_TABLE_ENTRY);
     bitmap_set_bit_addr(ALIGN_ADDR(rsdp->rsdt_address));
 
     header = (sdt_header_t*) VADDR(rsdp->rsdt_address);
@@ -62,14 +62,14 @@ void parse_rsdp(rsdp_descriptor_t *rsdp) {
     size_t pages = (header->length / PAGE_SIZE) + 1;
     for (size_t i = 1; i < pages; i++) {
         uint64_t phys_addr = rsdp->rsdt_address + i * PAGE_SIZE;
-        map_addr(ALIGN_ADDR(phys_addr), VADDR(phys_addr), WRITE_BIT | PRESENT_BIT);
+        map_addr(ALIGN_ADDR(phys_addr), VADDR(phys_addr), PAGE_TABLE_ENTRY);
         bitmap_set_bit_addr(ALIGN_ADDR(phys_addr));
     }
     num_tables = (header->length - sizeof(*header)) / sizeof(uint32_t);
     log(Verbose, "ACPI", "Found %u tables", num_tables);
     uint32_t *tables = (uint32_t*) (header + 1);
     for (size_t i = 0; i < num_tables; i++) {
-        map_addr(ALIGN_ADDR(tables[i]), VADDR(tables[i]), WRITE_BIT | PRESENT_BIT);
+        map_addr(ALIGN_ADDR(tables[i]), VADDR(tables[i]), PAGE_TABLE_ENTRY);
         bitmap_set_bit_addr(ALIGN_ADDR(tables[i]));
         sdt_header_t *tbl_header = (sdt_header_t*) VADDR(tables[i]);
         if (validate((char*) tbl_header, tbl_header->length)) {
@@ -110,6 +110,17 @@ void print_madt(madt_t *table) {
         i++;
     }
     flush_screen();
+}
+
+void print_mcfg(mcfg_t *table) {
+    uint32_t num_structs = (table->header.length - sizeof(mcfg_t)) / sizeof(config_base_address_t);
+    log(Verbose, "MCFG", "Found %u configuration space base address allocation structures", num_structs);
+    for (uint32_t i = 0; i < num_structs; i++) {
+        log(Verbose, "MCFG", "Base address: %x", table->config_base_addresses[i].base_addr);
+        log(Verbose, "MCFG", "PCI Segment Group Number: %x", table->config_base_addresses[i].pci_segment_group_num);
+        log(Verbose, "MCFG", "Start PCI Bus Number: %x", table->config_base_addresses[i].start_pci_bus_num);
+        log(Verbose, "MCFG", "End PCI Bus Number: %x", table->config_base_addresses[i].end_pci_bus_num);
+    }
 }
 
 madt_item_t *get_madt_item(madt_t *table, uint8_t search_item, uint8_t count) {

@@ -68,12 +68,12 @@ void init_pmm(uintptr_t addr, uint32_t size, mb_mmap_t *root) {
 
 void pmm_map_physical_memory(void) {
     for (uint64_t addr = 0, virtual_addr = HIGHER_HALF_OFFSET; addr < mem_size; addr += PAGE_SIZE, virtual_addr += PAGE_SIZE)
-        map_addr(addr, virtual_addr, WRITE_BIT | PRESENT_BIT);
+        map_addr(addr, virtual_addr, PAGE_TABLE_ENTRY);
     log(Info, "PMM", "Mapped physical memory");
 }
 
 void *map_range(uintptr_t start_phys, uintptr_t start_virt, size_t num_pages) {
     for (size_t i = 0; i < num_pages; i++)
-        map_addr(start_phys + i * PAGE_SIZE, start_virt + i * PAGE_SIZE, WRITE_BIT | PRESENT_BIT);
+        map_addr(start_phys + i * PAGE_SIZE, start_virt + i * PAGE_SIZE, PAGE_TABLE_ENTRY);
     return (void*) start_virt;
 }

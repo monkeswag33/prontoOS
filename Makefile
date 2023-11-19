@@ -16,6 +16,13 @@ CFLAGS := -ffreestanding \
 		-Wall \
 		-Wextra
 
+QEMU_FLAGS := -smp 2 \
+			-m 2G \
+			-machine q35 \
+			-device ahci,id=ahci \
+			-drive id=disk,file=disk.img,if=none,format=raw \
+			-device ide-hd,drive=disk,bus=ahci.0
+
 ASMFLAGS := -felf64
 LDFLAGS := -n
 
@@ -24,10 +31,10 @@ all: build/os.iso
 
 run: LDFLAGS += -s
 run: build/os.iso
-	qemu-system-x86_64 -smp 2 -cdrom $^
+	qemu-system-x86_64 $(QEMU_FLAGS) -cdrom $^
 
 debug-run: debug
-	qemu-system-x86_64 -smp 2 -cdrom build/os.iso -s -S
+	qemu-system-x86_64 $(QEMU_FLAGS) -cdrom build/os.iso -s -S
 
 debug: CFLAGS += -g
 debug: ASMFLAGS += -g -F dwarf

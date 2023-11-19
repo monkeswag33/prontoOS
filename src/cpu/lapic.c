@@ -42,7 +42,7 @@ void init_apic(size_t mem_size) {
     } else if (xApicLeaf & (1 << 9)) {
         log(Info, "LAPIC", "xAPIC Available");
         x2mode = false;
-        map_addr(apic_base_address, apic_hh_address, PRESENT_BIT | WRITE_BIT);
+        map_addr(apic_base_address, apic_hh_address, PAGE_TABLE_ENTRY);
     } else
         return log(Error, "LAPIC", "No LAPIC is supported by this CPU");
     
@@ -62,20 +62,20 @@ void init_apic(size_t mem_size) {
 }
 
 void disable_pic(void) {
-    outportb(PIC_COMMAND_MASTER, 0x11);
-    outportb(PIC_COMMAND_SLAVE, 0x11);
+    outb(PIC_COMMAND_MASTER, 0x11);
+    outb(PIC_COMMAND_SLAVE, 0x11);
 
-    outportb(PIC_DATA_MASTER, 0x20);
-    outportb(PIC_DATA_SLAVE, 0x28);
+    outb(PIC_DATA_MASTER, 0x20);
+    outb(PIC_DATA_SLAVE, 0x28);
 
-    outportb(PIC_DATA_MASTER, 4);
-    outportb(PIC_DATA_SLAVE, 2);
+    outb(PIC_DATA_MASTER, 4);
+    outb(PIC_DATA_SLAVE, 2);
 
-    outportb(PIC_DATA_MASTER, 1);
-    outportb(PIC_DATA_SLAVE, 1);
+    outb(PIC_DATA_MASTER, 1);
+    outb(PIC_DATA_SLAVE, 1);
 
-    outportb(PIC_DATA_MASTER, 0xFF);
-    outportb(PIC_DATA_SLAVE, 0xFF);
+    outb(PIC_DATA_MASTER, 0xFF);
+    outb(PIC_DATA_SLAVE, 0xFF);
 }
 
 uint32_t read_apic_register(uint32_t reg_off) {
@@ -99,10 +99,10 @@ uint32_t get_apic_id(void) {
 }
 
 void calibrate_apic_timer(void) {
-    outportb(PIT_MODE_COMMAND_REGISTER, 0b00110100);
+    outb(PIT_MODE_COMMAND_REGISTER, 0b00110100);
     uint16_t counter = PIT_1_MS;
-    outportb(PIT_CHANNEL_0_DATA_PORT, counter & 0xFF);
-    outportb(PIT_CHANNEL_0_DATA_PORT, (counter >> 8) & 0xFF);
+    outb(PIT_CHANNEL_0_DATA_PORT, counter & 0xFF);
+    outb(PIT_CHANNEL_0_DATA_PORT, (counter >> 8) & 0xFF);
 
     write_apic_register(APIC_TIMER_INITIAL_COUNT_REG_OFF, 0);
     write_apic_register(APIC_TIMER_CONFIG_OFF, APIC_TIMER_DIVIDER);

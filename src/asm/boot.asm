@@ -147,7 +147,6 @@ read_multiboot:
         jne read_multiboot
         cmp dword [rax + multiboot_tag.size], 8
         jne read_multiboot
-
     call init_kernel
 
 section .bss

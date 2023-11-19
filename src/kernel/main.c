@@ -14,6 +14,8 @@
 #include <kernel/multiboot.h>
 #include <kernel/acpi.h>
 #include <kernel/logging.h>
+#include <kernel/pci.h>
+#include <drivers/ahci.h>
 
 extern void ap_trampoline(void);
 void kernel_start(void);
@@ -80,20 +82,22 @@ void __attribute__((noreturn)) init_kernel(uintptr_t addr, uint64_t magic) {
     init_kheap();
     madt_t *madt = (madt_t*) get_table("APIC");
     print_madt(madt);
-    init_ioapic(madt);
-    init_keyboard();
-    IDT_SET_ENTRY(34, pit_irq);
-    IDT_SET_ENTRY(35, keyboard_irq);
-    set_irq(2, 34, 0, 0, 1); // PIT timer - initially masked
-    set_irq(1, 35, 0, 0, 0); // Keyboard
-    asm ("sti");
-    calibrate_apic_timer();
+    pci_probe();
+    init_ahci(pci_get_device(0x1, 0x6));
+    // init_ioapic(madt);
+    // init_keyboard();
+    // IDT_SET_ENTRY(34, pit_irq);
+    // IDT_SET_ENTRY(35, keyboard_irq);
+    // set_irq(2, 34, 0, 0, 1); // PIT timer - initially masked
+    // set_irq(1, 35, 0, 0, 0); // Keyboard
+    // asm ("sti");
+    // calibrate_apic_timer();
     // Change PIT timer irq to RTC timer irq since PIT is no longer used
-    IDT_SET_ENTRY(34, rtc_irq);
-    set_irq(8, 34, 0, 0, 1);
-    clear_screen();
-    init_rtc();
-    start_aps(madt);
+    // IDT_SET_ENTRY(34, rtc_irq);
+    // set_irq(8, 34, 0, 0, 1);
+    // clear_screen();
+    // init_rtc();
+    // start_aps(madt);
     // create_failsafe_thread(VADDR((uintptr_t) sp));
     // create_thread(&kernel_start, VADDR((uintptr_t) alloc_frame()));
     // create_thread(&my_task1, VADDR((uintptr_t) alloc_frame()));

@@ -1,5 +1,6 @@
 #pragma once
 #include <kernel/multiboot.h>
+#include <stddef.h>
 #define MADT_LAPIC 0
 #define MADT_IOAPIC 1
 #define MADT_INTERRUPT_SOURCE_OVERRIDE 2
@@ -43,6 +44,20 @@ typedef struct {
 } madt_t;
 
 typedef struct {
+    uint64_t base_addr;
+    uint16_t pci_segment_group_num;
+    uint8_t start_pci_bus_num;
+    uint8_t end_pci_bus_num;
+    uint32_t rsv;
+} config_base_address_t;
+
+typedef struct {
+    sdt_header_t header;
+    uint64_t rsv;
+    config_base_address_t config_base_addresses[0];
+} mcfg_t;
+
+typedef struct {
     uint8_t type;
     uint8_t length;
 } madt_item_t;
@@ -52,4 +67,5 @@ typedef struct {
 void init_acpi(mb_tag_t*);
 sdt_header_t *get_table(char*);
 void print_madt(madt_t*);
+void print_mcfg(mcfg_t*);
 madt_item_t *get_madt_item(madt_t*, uint8_t, uint8_t);

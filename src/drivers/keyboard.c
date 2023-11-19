@@ -28,26 +28,26 @@ char shift_keymap[] = {
 };
 
 static inline void check_ack(void) {
-    if (inportb(KEYBOARD_PORT) != KEYBOARD_ACK)
+    if (inb(KEYBOARD_PORT) != KEYBOARD_ACK)
         return log(Error, "KEYBOARD", "Unable to communicate with keyboard");
 }
 
 void init_keyboard(void) {
-    inportb(KEYBOARD_PORT);
-    outportb(KEYBOARD_PORT, 0xF5); // Disable keyboard from sending scan codes
+    inb(KEYBOARD_PORT);
+    outb(KEYBOARD_PORT, 0xF5); // Disable keyboard from sending scan codes
     check_ack();
     log(Verbose, "KEYBOARD", "Disabled keyboard scan codes");
-    outportb(KEYBOARD_PORT, 0xF0); // Set scancode set 2
-    outportb(KEYBOARD_PORT, 2);
+    outb(KEYBOARD_PORT, 0xF0); // Set scancode set 2
+    outb(KEYBOARD_PORT, 2);
     check_ack();
     log(Verbose, "KEYBOARD", "Set keyboard scan code set 2");
 
-    outportb(0x64, 0x20);
-    while ((inportb(PS2_STATUS) & 0b10) != 0);
-    uint8_t configuration_byte = inportb(PS2_DATA);
+    outb(0x64, 0x20);
+    while ((inb(PS2_STATUS) & 0b10) != 0);
+    uint8_t configuration_byte = inb(PS2_DATA);
     if ((configuration_byte & (1 << 6)) == 0)
         return log(Error, "KEYBOARD", "Translation is not enabled");
-    outportb(KEYBOARD_PORT, 0xF4);
+    outb(KEYBOARD_PORT, 0xF4);
     check_ack();
     log(Verbose, "KEYBOARD", "Enabled keyboard scan codes");
 }
@@ -106,7 +106,7 @@ char get_char(key_status_t key_status) {
 }
 
 void handle_keyboard(void) {
-    uint8_t scancode = inportb(KEYBOARD_PORT);
+    uint8_t scancode = inb(KEYBOARD_PORT);
     extern volatile uint8_t aps_running;
     return log(Verbose, "LAPIC", "%x - %u", *(uint64_t*) VADDR(16 * PAGE_SIZE), aps_running);
     key_code_t translated_scancode = translate(scancode);
