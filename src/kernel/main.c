@@ -15,7 +15,7 @@
 #include <kernel/acpi.h>
 #include <kernel/logging.h>
 #include <kernel/pci.h>
-#include <drivers/ahci.h>
+#include <fs/ahci.h>
 
 extern void ap_trampoline(void);
 void kernel_start(void);

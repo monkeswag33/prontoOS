@@ -33,6 +33,8 @@ void init_acpi(mb_tag_t *acpi_tag) {
             log(Info, "ACPI", "Detected valid RSDP");
         parse_rsdp(rsdp);
     } else {
+        log(Error, "ACPI", "RSDTv2 not implemented yet");
+        hcf();
         // TODO: Fix this
     }
 }
