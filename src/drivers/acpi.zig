@@ -25,6 +25,7 @@ pub var NamespaceLoadTask = kernel.Task{
         .{ .task = &kernel.drivers.timers.Task },
         .{ .task = &kernel.drivers.intctrl.Task },
         .{ .task = &kernel.drivers.pci.Task },
+        .{ .task = &kernel.lib.scheduler.Task },
     },
 };
 
